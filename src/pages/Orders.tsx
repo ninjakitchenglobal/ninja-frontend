@@ -22,9 +22,12 @@ const Orders = () => {
 
   if (isLoading) {
     return (
-      <section className="flex justify-center mt-70">
-        <span className="loading loading-ring loading-xl w-25 block" />
-      </section>
+      <>
+        <CombinedHeader />
+        <section className="flex justify-center mt-70">
+          <span className="loading loading-ring loading-xl w-25 block" />
+        </section>
+      </>
     );
   }
 

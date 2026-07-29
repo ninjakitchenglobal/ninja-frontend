@@ -28,18 +28,29 @@ const Stripe = () => {
 
   useEffect(() => {
     const getProducts = async () => {
+      const productIds = cart.map((item) => item.productId);
+
       try {
         setIsLoading(true);
         const res = await axios.get(
           `${DEV_API}/product/get-particular-products`,
           {
             params: {
-              productIds: cart.join(','),
+              productIds: productIds.join(','),
             },
           },
         );
 
-        setProducts(res.data.data);
+        const productsWithQuantity = res.data.data.map((product: IProduct) => {
+          const cartItem = cart.find((item) => item.productId === product._id);
+
+          return {
+            ...product,
+            quantity: cartItem?.quantity ?? 0,
+          };
+        });
+
+        setProducts(productsWithQuantity);
 
         setIsLoading(false);
       } catch (error: any) {
@@ -56,18 +67,14 @@ const Stripe = () => {
     };
 
     getProducts();
-  }, []);
+  }, [cart]);
 
   const totalPrice = products?.reduce(
-    (sum, product: IProduct) => sum + product.price,
+    (sum, product) => sum + product.price * (product.quantity ?? 1),
     0,
   );
 
-  const purchaseTitle = products?.map((product: IProduct) => {
-    const productTitle = [];
-    productTitle.push(product.title);
-    return productTitle;
-  });
+  const purchaseTitle = products?.map((product) => product.title).join(', ');
 
   //ONCHANGE HANDLER FOR THE SHIPPING DETAILS
   const handleChange = (e: any) => {
@@ -77,6 +84,8 @@ const Stripe = () => {
       return { ...prevDetails, [name]: value };
     });
   };
+
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <>
@@ -102,22 +111,18 @@ const Stripe = () => {
               Payment processing for:{' '}
             </h1>
             <ul className="text-gray-700 list-disc relative left-5">
-              {products?.map((product: IProduct, i: number) => {
+              {products?.map((product: IProduct) => {
                 return (
-                  <li key={i} className="text-xs">
-                    {' '}
-                    {product.title.slice(0, 40)}... - ${product.price}{' '}
+                  <li key={product._id} className="text-xs">
+                    {product.title.slice(0, 40)}... × {product.quantity} - $
+                    {product.price * (product.quantity ?? 1)}
                   </li>
                 );
               })}
             </ul>
 
             <p className="font-semibold text-gray-700">
-              Total: $
-              {products?.reduce(
-                (sum, product: IProduct) => sum + product.price,
-                0,
-              )}
+              Total: ${totalPrice ?? 0}
             </p>
           </div>
 
@@ -163,11 +168,11 @@ const Stripe = () => {
                 onClick={() => {
                   payWithStripe(
                     Number(totalPrice),
-                    cart.length,
-                    purchaseTitle!.join(', '),
+                    totalQuantity,
+                    purchaseTitle ?? '',
                     user,
                     shippingDetails,
-                    cart
+                    cart,
                   );
                 }}
                 className="bg-slate-600 w-60 text-white font-semibold text-sm md:text-base rounded-lg mx-auto mt-5 p-2 flex flex-col gap-4 cursor-pointer"

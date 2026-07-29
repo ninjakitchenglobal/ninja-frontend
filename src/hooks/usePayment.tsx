@@ -124,8 +124,11 @@ const usePayment = () => {
     quantity: number,
     name: string,
     user: string,
-    shippingDetails: { country: string; shippingAddress: string },
-    cart: string[],
+    shippingDetails: {
+      country: string;
+      shippingAddress: string;
+    },
+    cart: { productId: string; quantity: number }[],
   ) => {
     const { shippingAddress, country } = shippingDetails;
 
@@ -136,6 +139,9 @@ const usePayment = () => {
       }
 
       setIsPurchaseLoading(true);
+
+      const productIds = cart.map((item) => item.productId);
+
       const res = await axios.post(
         `${DEV_API}/purchase/create-stripe-purchase`,
         {
@@ -145,7 +151,7 @@ const usePayment = () => {
           user,
           address: shippingAddress,
           destinationCountry: country,
-          productIds: cart.join(','),
+          productIds: productIds.join(','),
         },
       );
 

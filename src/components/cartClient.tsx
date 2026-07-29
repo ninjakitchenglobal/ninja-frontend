@@ -85,6 +85,7 @@ export default function CartClient() {
                   <span className="text-sm font-semibold w-[80%]">
                     <h2 className="text-gray-700">{item.title}</h2>
                     <p className="text-gray-500">${item.price}</p>
+                    <p className="text-gray-500"> Quantity: {item.quantity} </p>
                   </span>
                 </div>
 

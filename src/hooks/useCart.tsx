@@ -26,16 +26,27 @@ const useCart = () => {
     try {
       setIsLoading(true);
 
+      const productIds = cart.map((item) => item.productId);
+
       const res = await axios.get(
         `${DEV_API}/product/get-particular-products`,
         {
           params: {
-            productIds: cart.join(','),
+            productIds: productIds.join(','),
           },
         },
       );
 
-      setCartDetails(res.data.data);
+      const productsWithQuantity = res.data.data.map((product: any) => {
+        const cartItem = cart.find((item) => item.productId === product._id);
+
+        return {
+          ...product,
+          quantity: cartItem?.quantity ?? 0,
+        };
+      });
+
+      setCartDetails(productsWithQuantity);
     } catch (error: any) {
       if (error.response) {
         toast.error(error.response.data.message);

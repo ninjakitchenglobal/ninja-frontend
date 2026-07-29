@@ -2,7 +2,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const storedItem = localStorage.getItem('ninja-cart');
 
-const initialState: string[] = storedItem ? JSON.parse(storedItem) : [];
+interface CartItem {
+  productId: string;
+  quantity: number;
+}
+
+const initialState: CartItem[] = storedItem ? JSON.parse(storedItem) : [];
 
 const cartSlice = createSlice({
   name: 'cartSlice',
@@ -10,18 +15,36 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const productId = action.payload;
-      state.push(productId);
+
+      const existingItem = state.find((item) => item.productId === productId);
+
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        state.push({
+          productId,
+          quantity: 1,
+        });
+      }
+
       localStorage.setItem('ninja-cart', JSON.stringify(state));
     },
 
     removeFromCart: (state, action) => {
       const productId = action.payload;
-      state = state.filter((item: string) => {
-        return item !== productId;
-      });
-      localStorage.removeItem('ninja-cart');
+
+      const existingItem = state.find((item) => item.productId === productId);
+
+      if (!existingItem) return;
+
+      if (existingItem.quantity > 1) {
+        existingItem.quantity -= 1;
+      } else {
+        const index = state.findIndex((item) => item.productId === productId);
+        state.splice(index, 1);
+      }
+
       localStorage.setItem('ninja-cart', JSON.stringify(state));
-      return state;
     },
 
     setState: (state, action) => {

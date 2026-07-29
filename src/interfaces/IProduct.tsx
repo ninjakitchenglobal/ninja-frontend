@@ -5,4 +5,5 @@ export default interface IProduct {
   category: string;
   picture?: string;
   _id?: string;
+  quantity?: number;
 }

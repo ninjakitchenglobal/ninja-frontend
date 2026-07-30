@@ -14,22 +14,10 @@ const PaymentConfirmation = () => {
         <div className="text-gray-700 border-2 border-gray-700 p-3 rounded-lg w-[80%] mx-auto">
           <h1 className="text-2xl font-semibold text-center mb-3">
             {' '}
-            Payment confirmed!{' '}
+            Payment confirmed! ✅{' '}
           </h1>
-          <span className="text-justify">
-            <p>
-              Please wait while we confirm your payment and process your order
-            </p>
-            <p>
-              You will receive an email with your order number and shipping
-              details
-            </p>
-            <p>
-              In the event you don't receive an email, check your spam folder or
-              send a picture of your payment receipt to our customer service
-              email
-            </p>
-            <p>Thank you for choosing Ninja</p>
+          <span className="text-center">
+            <p>Payment confirmed Your order will be processed for delivery</p>
           </span>
 
           <button

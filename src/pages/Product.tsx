@@ -13,12 +13,13 @@ import type IProduct from '../interfaces/IProduct';
 //IMPORTING HELPER COMPONENTS
 import CombinedHeader from '../components/CombinedHeader';
 //STATE MANAGEMENT
-import { useAppDispatch } from '../lib/redux/hooks';
-import { addToCart } from '../lib/redux/features/cartSlice';
+import { useAppDispatch, useAppSelector } from '../lib/redux/hooks';
+import { addToCart, removeFromCart } from '../lib/redux/features/cartSlice';
 
 import { DEV_API } from '../lib/utils/api-url';
 
 const ProductPage = () => {
+  const cart = useAppSelector((store) => store.cartReducer);
   const [productDetails, setProductDetails] = useState<IProduct>();
 
   const params = useParams();
@@ -55,6 +56,8 @@ const ProductPage = () => {
   }
 
   const { title, description, price, picture, _id: productId } = productDetails;
+  const cartItem = cart.find((item) => item.productId === productId);
+  const quantityInCart = cartItem?.quantity ?? 0;
 
   return (
     <main>
@@ -91,6 +94,12 @@ const ProductPage = () => {
               Hot Sales 🔥 - ${price}{' '}
             </h3>
 
+            {quantityInCart > 0 && (
+              <p className="text-gray-600 font-medium">
+                In Cart: {quantityInCart}
+              </p>
+            )}
+
             <span className="flex gap-5 justify-center">
               <button
                 onClick={() => {
@@ -100,10 +109,12 @@ const ProductPage = () => {
                 }}
                 className="text-white bg-red-400 rounded-lg py-3 px-5 w-full text-center font-semibold hover:bg-red-500 cursor-pointer"
               >
-                {' '}
-                ADD TO CART{' '}
+                {quantityInCart > 0
+                  ? `ADD ANOTHER (${quantityInCart})`
+                  : 'ADD TO CART'}
               </button>
-              <span
+
+              <button
                 onClick={() => {
                   buyNow(productId!);
                 }}
@@ -111,8 +122,22 @@ const ProductPage = () => {
               >
                 {' '}
                 BUY NOW{' '}
-              </span>
+              </button>
             </span>
+            {quantityInCart > 0 ? (
+              <span>
+                <button
+                  onClick={() => {
+                    dispatch(removeFromCart(productId));
+                  }}
+                  className="text-white bg-red-400 rounded-lg py-3 px-5 w-full text-center font-semibold hover:bg-red-500 cursor-pointer"
+                >
+                  REMOVE ITEM
+                </button>
+              </span>
+            ) : (
+              ''
+            )}
           </div>
         </div>
 
